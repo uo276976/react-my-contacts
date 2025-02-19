@@ -1,35 +1,61 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import {useState, useEffect} from 'react'; 
+import CardList from './components/CardList'; 
+import Scroll from './components/Scroll'; 
+import {ErrorBoundary} from 'react-error-boundary' 
+import ErrorFallback from './components/ErrorFallback';
+import Searcher from './components/Searcher';
+ 
+function App()  { 
+  const [contacts, setContacts] = useState([]); 
+ 
+  useEffect(() => { 
+    fetch('https://randomuser.me/api/?results=50') 
+     .then(response => response.json()) 
+     .then(data => setContacts(data.results)); 
+  }, [])
+  
+  const [searchField, setSearchField] = useState(''); 
+  const onSearchChange = (event) => { 
+  setSearchField(event.target.value); 
+  } 
+  const searchedContacts = contacts.filter(contact => { 
+    return (contact.name['first'] + ' ' + 
+      contact.name['last']).toLowerCase().includes(searchField.toLowerCase()) 
+  });
 
-function App() {
-  const [count, setCount] = useState(0)
+  const onAZ = () => { 
+    let az = contacts.sort((a, b) => { 
+      return (a.name['first'] + " " + a.name['last']).localeCompare(b.name['first'] + " " + b.name['last']) 
+    }) 
+    setContacts([...az]); //clone the list 
+  } 
+ 
+  const onZA = () => { 
+    let za = contacts.sort((a, b) => { 
+      return (b.name['first'] + " " + b.name['last']).localeCompare(a.name['first'] + " " + a.name['last']) 
+    }) 
+    setContacts([...za]); //clone the list 
+  } 
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
-
-export default App
+  return ( 
+    <div className='tc'> 
+      <header> 
+        <h1 className='f1'>My contacts</h1> 
+      </header> 
+      {contacts.length === 0 ? <h2 className='f2'>Loading...</h2> : 
+        <ErrorBoundary FallbackComponent={ErrorFallback}> 
+             <Searcher searchChange={onSearchChange} az={onAZ} za={onZA}/> 
+            <Scroll>      
+              <CardList contacts={searchedContacts}/> 
+            </Scroll> 
+        </ErrorBoundary> 
+      } 
+      <footer> 
+        <hr/><p>Desarrollo de Software para Dispositivos Moviles.  
+          {new Date().getFullYear()}</p> 
+      </footer> 
+    </div> 
+  ); 
+} 
+ 
+export default App;
