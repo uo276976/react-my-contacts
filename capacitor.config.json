@@ -1,0 +1,10 @@
+{
+  "appId": "com.example.app",
+  "appName": "react-my-contacts",
+  "webDir": "dist",
+  "server": { 
+    "hostname": "0.0.0.0:3000/react-my-contacts", 
+    "cleartext": true, 
+    "allowNavigation": "['*']"
+  }
+}
